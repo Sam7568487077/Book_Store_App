@@ -41,3 +41,21 @@ def check_user_token(function):
         return function(self, request)
 
     return check
+
+
+def check_is_superuser(function):
+    def verify_super_user(self,request):
+        token = request.headers.get("Authorization")
+        if not token:
+            return Response({"message": "Token not found"}, status=status.HTTP_400_BAD_REQUEST)
+        token_decode = Jwt.decode(token)
+        if not token_decode:
+            return Response({"message": "Token Authentication required"}, status=status.HTTP_400_BAD_REQUEST)
+        user = User.objects.get(id=token_decode.get("user"))
+        if not user.is_superuser:
+            return Response({"message": "User is not Authorized"}, status=status.HTTP_400_BAD_REQUEST)
+        request.data.update({"user": user.id})
+
+        return function(self, request)
+
+    return verify_super_user

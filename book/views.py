@@ -2,6 +2,7 @@ from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
+from users.utils import check_is_superuser,check_user_token
 from .models import Book
 from .serializers import BookSerializer
 
@@ -10,6 +11,7 @@ from .serializers import BookSerializer
 
 class Books(viewsets.ViewSet):
 
+    @check_is_superuser
     def create(self, request):
         """To Create a Book"""
 
@@ -23,6 +25,7 @@ class Books(viewsets.ViewSet):
         except Exception as e:
             return Response({"message": str(e), "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
+    @check_user_token
     def list(self, request):
         """Get all Books"""
         try:
@@ -34,6 +37,7 @@ class Books(viewsets.ViewSet):
         except Exception as e:
             return Response({"message": str(e), "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
+    @check_user_token
     def retrieve(self, request, pk):
         """Retrieve a Book by id"""
         try:
@@ -45,6 +49,7 @@ class Books(viewsets.ViewSet):
         except Exception as e:
             return Response({"message": str(e), "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
+    @check_is_superuser
     def update(self, request, pk):
         """Updating a Book"""
         try:
@@ -58,6 +63,7 @@ class Books(viewsets.ViewSet):
         except Exception as e:
             return Response({"message": str(e), "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
+    @check_is_superuser
     def destroy(self, request, pk):
         """Deleting a Book"""
         try:
