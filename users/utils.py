@@ -27,7 +27,7 @@ class Jwt:
 
 
 def check_user_token(function):
-    def check(self, request):
+    def check(self, request, *args, **kwargs):
         token = request.headers.get("Authorization")
         if not token:
             return Response({"message": "Token not found"}, status=status.HTTP_400_BAD_REQUEST)
@@ -38,13 +38,13 @@ def check_user_token(function):
         if not user:
             return Response({"message": "Invalid User"}, status=status.HTTP_400_BAD_REQUEST)
         request.data.update({"user": user.id})
-        return function(self, request)
+        return function(self, request, *args, **kwargs)
 
     return check
 
 
 def check_is_superuser(function):
-    def verify_super_user(self,request):
+    def verify_super_user(self, request):
         token = request.headers.get("Authorization")
         if not token:
             return Response({"message": "Token not found"}, status=status.HTTP_400_BAD_REQUEST)
