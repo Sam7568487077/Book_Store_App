@@ -2,15 +2,18 @@ from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 
-from users.utils import check_is_superuser,check_user_token
+from users.utils import check_is_superuser, check_user_token
 from .models import Book
 from .serializers import BookSerializer
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 
 # Create your views here.
 
 class Books(viewsets.ViewSet):
 
+    @swagger_auto_schema(request_body=BookSerializer)
     @check_is_superuser
     def create(self, request):
         """To Create a Book"""
@@ -49,6 +52,10 @@ class Books(viewsets.ViewSet):
         except Exception as e:
             return Response({"message": str(e), "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
+    g_param = openapi.Parameter('pk', in_=openapi.IN_QUERY,
+                                description='description', type=openapi.TYPE_INTEGER)
+
+    @swagger_auto_schema(request_body=BookSerializer)
     @check_is_superuser
     def update(self, request, pk):
         """Updating a Book"""
@@ -62,6 +69,9 @@ class Books(viewsets.ViewSet):
                             status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"message": str(e), "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+    g_param = openapi.Parameter('pk', in_=openapi.IN_QUERY,
+                                description='description', type=openapi.TYPE_INTEGER)
 
     @check_is_superuser
     def destroy(self, request, pk):

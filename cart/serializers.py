@@ -5,6 +5,12 @@ from book.models import Book
 from cart.models import Cart, CartItem
 
 
+class ActiveCartSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CartItem
+        fields = ['id', 'price', 'quantity', 'book', 'cart']
+
+
 class CartSerializers(serializers.ModelSerializer):
     book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all(), write_only=True)
     items = serializers.SerializerMethodField('get_items')

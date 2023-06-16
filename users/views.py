@@ -8,9 +8,11 @@ from .utils import Jwt
 from rest_framework.reverse import reverse
 from django.conf import settings
 from django.core.mail import send_mail
+from drf_yasg.utils import swagger_auto_schema
 
 
 class UserApi(APIView):
+    @swagger_auto_schema(request_body=UserSerializer)
     def post(self, request):
         """function to register user"""
 
@@ -18,8 +20,8 @@ class UserApi(APIView):
             serializer = UserSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            token = Jwt.encode({"user": serializer.data.get("id")})
-            link = settings.BASE_URL + reverse("user_verify") + f"?token={token}"
+
+            link = settings.BASE_URL + reverse("user_verify") + f"?token={serializer.data.get('registration_token')}"
             send_mail(
                 subject='Book Store User Registration',
                 message=link,
@@ -35,16 +37,17 @@ class UserApi(APIView):
 
 
 class UserLoginApi(APIView):
+    @swagger_auto_schema(request_body=UserLoginSerializer)
     def post(self, request):
         """function to login user"""
         try:
             serializer = UserLoginSerializer(data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            token = Jwt.encode({"user": serializer.data.get("id")})
-            return Response({'message': 'Login successfully', 'status': 200, 'data': token}, status=status.HTTP_200_OK)
+
+            return Response({'message': 'Login successfully', 'status': 200, 'data': serializer.data.get('auth_token')}, status=status.HTTP_200_OK)
         except Exception as e:
-            return JsonResponse({'message': e.args[0], 'status': 400, 'data': {}}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': e.args[0], 'status': 400, 'data': {}}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class VerifyToken(APIView):
@@ -65,7 +68,7 @@ class VerifyToken(APIView):
             return Response({"message": "User Verified", "status": 202, "data": {}},
                             status=status.HTTP_202_ACCEPTED)
         except Exception as e:
-            return JsonResponse({'message': e.args[0], 'status': 400, 'data': {}}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': e.args[0], 'status': 400, 'data': {}}, status=status.HTTP_400_BAD_REQUEST)
 
 
 

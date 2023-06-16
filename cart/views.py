@@ -4,15 +4,18 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 
 from cart.models import Cart
-from cart.serializers import CartSerializers
+from cart.serializers import CartSerializers,ActiveCartSerializer
 from users.models import User
 from users.utils import check_is_superuser, check_user_token, Jwt
+from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 
 
 # Create your views here.
 
 class ItemsCart(viewsets.ViewSet):
 
+    @swagger_auto_schema(request_body=CartSerializers)
     @check_user_token
     def create(self, request):
         """Creating a Cart"""
@@ -37,6 +40,10 @@ class ItemsCart(viewsets.ViewSet):
         except Exception as e:
             return Response({"message": str(e), "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
+    g_param = openapi.Parameter('pk', in_=openapi.IN_QUERY,
+                                description='description', type=openapi.TYPE_INTEGER)
+
+
     @check_user_token
     def destroy(self, request, pk):
         """Deleting a Cart"""
@@ -50,7 +57,7 @@ class ItemsCart(viewsets.ViewSet):
 
 
 class OrderApi(viewsets.ViewSet):
-
+    @swagger_auto_schema(request_body=ActiveCartSerializer)
     @check_user_token
     def create(self, request):
         try:
@@ -87,6 +94,7 @@ class OrderApi(viewsets.ViewSet):
 
 
 class PurchaseApi(viewsets.ViewSet):
+    @swagger_auto_schema(request_body=CartSerializers)
     @check_user_token
     def create(self, request):
         try:
@@ -120,4 +128,8 @@ class PurchaseApi(viewsets.ViewSet):
                             status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"message": str(e), "status": 400}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
 
